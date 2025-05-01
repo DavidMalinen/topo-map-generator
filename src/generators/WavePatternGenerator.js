@@ -1,3 +1,5 @@
+import BaseTerrainGenerator from './BaseTerrainGenerator.js';
+
 class WavePatternGenerator extends BaseTerrainGenerator {
     constructor(rows, cols, maxHeight) {
         super(rows, cols, maxHeight);
@@ -17,3 +19,5 @@ class WavePatternGenerator extends BaseTerrainGenerator {
         }
     }
 }
+
+export default WavePatternGenerator;

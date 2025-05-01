@@ -57,3 +57,5 @@ class HoverEffect {
         return x >= 0 && x < this.canvas.width / this.cellSize && y >= 0 && y < this.canvas.height / this.cellSize;
     }
 }
+
+export default HoverEffect;

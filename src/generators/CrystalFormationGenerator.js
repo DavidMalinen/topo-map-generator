@@ -1,3 +1,5 @@
+import BaseTerrainGenerator from './BaseTerrainGenerator.js';
+
 class CrystalFormationGenerator extends BaseTerrainGenerator {
     constructor(rows, cols, maxHeight) {
         super(rows, cols, maxHeight);

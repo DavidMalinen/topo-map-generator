@@ -39,6 +39,22 @@ class ElevationData {
             }
         }
     }
+    
+    setFromArray(data) {
+        if (!data || data.length !== this.rows) return;
+        
+        for (let y = 0; y < this.rows; y++) {
+            if (data[y] && data[y].length === this.cols) {
+                for (let x = 0; x < this.cols; x++) {
+                    this.elevationData[y][x] = data[y][x];
+                }
+            }
+        }
+    }
+    
+    getRawData() {
+        return this.elevationData;
+    }
 }
 
 export default ElevationData;
