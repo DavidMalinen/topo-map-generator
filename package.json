@@ -1,0 +1,26 @@
+{
+  "name": "topo-map-generator",
+  "version": "1.0.0",
+  "description": "A terrain generation and rendering application using JavaScript.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "terrain",
+    "generation",
+    "rendering",
+    "isometric",
+    "top-down"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    
+  },
+  "devDependencies": {
+    "vite": "^5.1.4"
+  }
+}

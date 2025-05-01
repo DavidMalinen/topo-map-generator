@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCALERZ Topographic Grid</title>
+    <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@800&family=Inter:wght@300;400&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Brutalist Topographic Grid</h1>
+        
+        <div class="controls">
+            <div class="control-group">
+                <h3 class="control-group-title">View</h3>
+                <button class="control-btn" id="reset-btn">Reset</button>
+                <button class="control-btn" id="transform-btn">Transform</button>
+            </div>
+            
+            <div class="control-group">
+                <h3 class="control-group-title">Terrain</h3>
+                <button class="control-btn" id="random-btn">Randomize</button>
+                <button class="control-btn" id="center-btn">Center Peak</button>
+                <button class="control-btn" id="wave-btn">Wave</button>
+                <button class="control-btn" id="crystal-btn">Crystal</button>
+                <button class="control-btn" id="city-btn">CityGrid</button>
+            </div>
+            
+            <div class="control-group">
+                <h3 class="control-group-title">Effects</h3>
+                <button class="control-btn" id="scan-btn">Toggle Scan</button>
+                <button class="control-btn" id="dither-btn">Toggle Dither</button>
+                <button class="control-btn" id="hover-btn">Cell Hover</button>
+            </div>
+            
+            <div class="control-group">
+                <h3 class="control-group-title">Color</h3>
+                <button class="control-btn" id="color-shift-btn">Color Shift</button>
+                <div class="slider-container">
+                    <label for="max-height">Max Height:</label>
+                    <input type="range" id="max-height" min="50" max="500" value="100" class="slider">
+                    <span id="height-value">100</span>
+                </div>
+            </div>
+        </div>
+        
+        <canvas id="topo-canvas" width="800" height="600"></canvas>
+        
+        <div class="info-panel">
+            <p class="info-text">Click and drag to modify elevation. Hold SHIFT to decrease. Scroll to adjust brush strength.</p>
+            <p class="info-text">The grid demonstrates a structural topographic system that transforms between 2D and 3D views.</p>
+        </div>
+    </div>
+    
+    <div class="coordinates" id="coordinates">X:0 Y:0</div>
+    <div class="status" id="status">STATUS: INITIALIZING</div>
+    <div class="value-label" id="value-label">ELEVATION: 0</div>
+    <div class="scan-line" id="scan-line" style="display: none;"></div>
+    
+    <script type="module" src="src/index.js"></script>
+</body>
+</html>
