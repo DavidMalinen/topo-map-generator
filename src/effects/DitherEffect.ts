@@ -1,88 +1,153 @@
 import BaseEffect from './BaseEffect';
 import DitherMap from '../models/DitherMap';
-import { DitherPattern } from '../types';
+import { DitherPattern, Point } from '../types';
+import StateManager from '../controllers/StateManager';
 
 class DitherEffect extends BaseEffect {
   private ditherMap: DitherMap;
-  private patternCache: Map<string, DitherPattern>;
+  private isometricFaceCache: Map<string, { x: number, y: number, threshold: number }[]>;
+  private initialized = false;
+  private stateManager: StateManager;
 
-  constructor() {
+  public constructor(stateManager: StateManager) {
     super();
     this.ditherMap = new DitherMap(4);
-    this.patternCache = new Map();
+    this.isometricFaceCache = new Map();
+    this.stateManager = stateManager;
   }
 
-  initialize(): void {
-    this.createDitherPatterns();
+  public initialize(): void {
+    if (this.initialized) return;
+
+    // Run once at initialization and never again
+    this.ditherMap.generateDitherMap(100, 100); // Generate a large enough map for all needs
+    this.initialized = true;
   }
 
-  apply(ctx: CanvasRenderingContext2D, x: number, y: number, elevation: number,
+  public apply(ctx: CanvasRenderingContext2D, x: number, y: number,
     baseOpacity: number, cellSize: number): void {
-    this.drawDitheredCell(ctx, x, y, elevation, baseOpacity, cellSize);
+
+    // Only apply top-down dithering when NOT in isometric view
+    if (!this.stateManager.getState().isometric) {
+      this.drawDitheredCell(ctx, x, y, baseOpacity, cellSize);
+    }
   }
 
-  toggle(_active: boolean): void { }
+  public toggle(_active: boolean): void {
+    // Keep toggle functionality in StateManager
+    // This is just a placeholder for the BaseEffect interface
+  }
 
-  /**
-   * Generate a complete dither map for the grid
-   */
-  generateDitherMap(rows: number, cols: number, cellSize: number): void {
+  // This should only be called once during init
+  public generateDitherMap(rows: number, cols: number, cellSize: number): void {
+    if (this.initialized) return;
+
     this.ditherMap.setCellSize(cellSize);
     this.ditherMap.generateDitherMap(rows, cols);
+    this.initialized = true;
   }
 
-  /**
-   * Initialize different dither patterns for various use cases
-   */
-  createDitherPatterns(): void {
-    // Cache predefined patterns
-    for (let i = 0; i < 4; i++) {
-      const pattern = this.ditherMap.getPattern(i);
-      this.patternCache.set(`predefined_${i}`, pattern);
-    }
-
-    // Generate and cache some custom patterns with different seeds
-    const seeds = [42, 123, 789, 555];
-    seeds.forEach(seed => {
-      const pattern = this.ditherMap.generateCustomPattern(seed);
-      this.patternCache.set(`custom_${seed}`, pattern);
-    });
-  }
-
-  /**
-   * Draw a cell using dithering effect
-   */
-  drawDitheredCell(
+  public drawDitheredCell(
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    elevation: number,
     baseOpacity: number,
     cellSize: number
   ): void {
-    const index = y * Math.ceil(ctx.canvas.width / cellSize) + x;
-    let pattern: DitherPattern;
+    // Get a consistent pattern based on cell position
+    const index = y * 100 + x; // Use x,y for consistent pattern selection
+    const pattern = this.ditherMap.getDitherPattern(index % 10000); // Keep within bounds
 
-    // Choose appropriate pattern based on elevation
-    if (elevation > 0.8) {
-      // High mountains - dense pattern
-      pattern = this.patternCache.get('custom_555') ||
-        this.ditherMap.getDitherPattern(index);
-    } else if (elevation > 0.5) {
-      // Hills - medium pattern
-      pattern = this.patternCache.get('custom_789') ||
-        this.ditherMap.getDitherPattern(index);
-    } else if (elevation > 0.3) {
-      // Low elevation - sparse pattern
-      pattern = this.patternCache.get('custom_42') ||
-        this.ditherMap.getDitherPattern(index);
-    } else {
-      // Very low elevation - use grid's dynamic pattern
-      pattern = this.ditherMap.getDitherPattern(index);
+    this.applyDitherPattern(ctx, x, y, pattern, baseOpacity, cellSize);
+  }
+
+  // Draw dithered isometric face with stable patterns
+  public drawDitheredIsometricFace(
+    ctx: CanvasRenderingContext2D,
+    points: Point[],
+    color: string,
+    intensity: number
+  ): void {
+    // Only apply isometric dithering when IN isometric view
+    if (!this.stateManager.getState().isometric) {
+      return;
     }
 
-    // Apply the dither pattern
-    this.applyDitherPattern(ctx, x, y, pattern, baseOpacity, cellSize);
+    // Create a unique key for this face based on its points
+    const faceKey = points.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join('|');
+
+    // Create a base fill with low opacity
+    ctx.fillStyle = color.replace(/[\d.]+\)$/g, "0.1)");
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Check if we already have a dither map for this face
+    if (!this.isometricFaceCache.has(faceKey)) {
+      // Calculate bounding box
+      let minX = Infinity, minY = Infinity;
+      let maxX = -Infinity, maxY = -Infinity;
+
+      for (const point of points) {
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
+      }
+
+      const width = maxX - minX;
+      const height = maxY - minY;
+
+      // Generate a new dither map for this face
+      const dotSpacing = 4;
+      const dotsX = Math.ceil(width / dotSpacing);
+      const dotsY = Math.ceil(height / dotSpacing);
+
+      const faceDitherMap: { x: number, y: number, threshold: number }[] = [];
+
+      // Generate fixed threshold values for dot positions
+      for (let dy = 0; dy <= dotsY; dy++) {
+        for (let dx = 0; dx <= dotsX; dx++) {
+          const dotX = minX + dx * dotSpacing;
+          const dotY = minY + dy * dotSpacing;
+
+          if (this.isPointInPolygon(dotX, dotY, points)) {
+            // Use a hash of the dot position for consistent random values
+            const hash = (dotX * 31 + dotY * 17) % 100;
+            const threshold = hash / 100; // Normalized 0-1
+
+            faceDitherMap.push({
+              x: dotX,
+              y: dotY,
+              threshold: threshold
+            });
+          }
+        }
+      }
+
+      this.isometricFaceCache.set(faceKey, faceDitherMap);
+    }
+
+    // Draw the dots with consistent pattern
+    const faceDitherMap = this.isometricFaceCache.get(faceKey)!;
+    const dotSize = 2;
+
+    // Apply a consistent density scale
+    // Cap intensity to prevent patterns from disappearing at extreme heights
+    const density = 0.1 + (Math.min(intensity, 0.9) * 0.9);
+
+    ctx.fillStyle = color;
+
+    // Draw dots based on pre-generated thresholds
+    faceDitherMap.forEach(dot => {
+      if (dot.threshold < density) {
+        ctx.fillRect(dot.x, dot.y, dotSize, dotSize);
+      }
+    });
   }
 
   private applyDitherPattern(
@@ -93,10 +158,11 @@ class DitherEffect extends BaseEffect {
     opacity: number,
     cellSize: number
   ): void {
-    const threshold = Math.min(1, opacity) * 16;
+    // Cap the threshold to ensure pattern remains visible
+    const threshold = Math.min(Math.max(opacity * 16, 3), 15);
     const dotsPerSide = Math.floor(cellSize / 2);
 
-    ctx.fillStyle = `rgba(255, 255, 255, ${opacity * 0.8})`;
+    ctx.fillStyle = `rgba(198, 255, 0, ${opacity * 0.2})`;
 
     // Apply dither pattern
     for (let dy = 0; dy < dotsPerSide; dy++) {
@@ -113,11 +179,23 @@ class DitherEffect extends BaseEffect {
     }
   }
 
-  /**
-   * Clean up resources
-   */
-  dispose(): void {
-    this.patternCache.clear();
+  // Helper method to check if a point is inside a polygon
+  private isPointInPolygon(x: number, y: number, polygon: Point[]): boolean {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i].x, yi = polygon[i].y;
+      const xj = polygon[j].x, yj = polygon[j].y;
+
+      const intersect = ((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+
+  public dispose(): void {
+    this.isometricFaceCache.clear();
+    this.initialized = false;
   }
 }
 

@@ -1,5 +1,5 @@
 import BaseRenderer from './BaseRenderer';
-import type { ElevationMatrix, Point } from '../types';
+import { ElevationMatrix, Point } from '../types';
 import { ColorUtils } from '../utils/ColorUtils';
 
 class IsometricRenderer extends BaseRenderer {
@@ -12,65 +12,131 @@ class IsometricRenderer extends BaseRenderer {
   }
 
   drawTerrain(elevationData: ElevationMatrix, maxHeight: number, cellSize: number): void {
+    // Create an array of cells to sort
+    const cells: { x: number; y: number; elevation: number }[] = [];
+
     for (let y = 0; y < elevationData.length; y++) {
       for (let x = 0; x < elevationData[y].length; x++) {
         const elevation = elevationData[y][x];
         if (elevation > 0) {
-          this.drawIsometricCube(x, y, elevation, maxHeight, cellSize);
+          cells.push({ x, y, elevation });
         }
       }
+    }
+
+    // Sort cells back to front for proper rendering
+    cells.sort((a, b) => (a.x + a.y) - (b.x + b.y));
+
+    // Draw each cell
+    for (const cell of cells) {
+      this.drawIsometricCube(cell.x, cell.y, cell.elevation, maxHeight, cellSize);
     }
   }
 
   drawIsometricCube(x: number, y: number, height: number, maxHeight: number, cellSize: number): void {
     const intensity = height / maxHeight;
-    
+    const heightPixels = height * (cellSize / maxHeight * 0.6);
+
     // Calculate isometric position
     const isoX = this.offsetX + (x - y) * cellSize;
     const isoY = this.offsetY + (x + y) * cellSize / 2;
-    
+
     // Calculate points for the cube faces
-    const topPoints = this.calculateTopPoints(isoX, isoY, cellSize);
-    const leftPoints = this.calculateLeftPoints(isoX, isoY, height, cellSize);
-    const rightPoints = this.calculateRightPoints(isoX, isoY, height, cellSize);
-    
-    // Draw faces
-    this.drawFace(rightPoints, ColorUtils.getRightFaceColor(intensity));
-    this.drawFace(leftPoints, ColorUtils.getLeftFaceColor(intensity));
+    const topPoints = this.calculateTopPoints(isoX, isoY - heightPixels, cellSize);
+    const leftPoints = this.calculateLeftPoints(isoX, isoY, heightPixels, cellSize);
+    const rightPoints = this.calculateRightPoints(isoX, isoY, heightPixels, cellSize);
+    const frontLeftPoints = this.calculateFrontLeftPoints(isoX, isoY, heightPixels, cellSize);
+    const frontRightPoints = this.calculateFrontRightPoints(isoX, isoY, heightPixels, cellSize);
+
+    // Apply different rendering based on height and dithering state
+    const ditherActive = this.canvas.dataset.ditherActive === 'true';
+
+    // Draw faces in correct visibility order (back to front)
+    if (ditherActive && height > maxHeight * 0.4) {
+      // For taller structures, use dithering on side faces
+      // First, draw solid faces with slight opacity
+      this.drawFace(leftPoints, ColorUtils.getLeftFaceColor(intensity * 0.3));
+      this.drawFace(rightPoints, ColorUtils.getRightFaceColor(intensity * 0.2));
+      this.drawFace(frontLeftPoints, ColorUtils.getLeftFaceColor(intensity * 0.25));
+      this.drawFace(frontRightPoints, ColorUtils.getRightFaceColor(intensity * 0.2));
+
+      // Then apply dithering through the effects system
+      const event = new CustomEvent('apply-isometric-dither', {
+        detail: {
+          leftPoints: leftPoints,
+          rightPoints: rightPoints,
+          frontLeftPoints: frontLeftPoints,
+          frontRightPoints: frontRightPoints,
+          intensity: intensity,
+          height: height,
+          maxHeight: maxHeight
+        }
+      });
+      this.canvas.dispatchEvent(event);
+    } else {
+      // Standard drawing for smaller structures or when dithering is off
+      this.drawFace(leftPoints, ColorUtils.getLeftFaceColor(intensity));
+      this.drawFace(rightPoints, ColorUtils.getRightFaceColor(intensity));
+      this.drawFace(frontLeftPoints, ColorUtils.getLeftFaceColor(intensity * 0.8));
+      this.drawFace(frontRightPoints, ColorUtils.getRightFaceColor(intensity * 0.7));
+    }
+
+    // Always draw top face last (without dithering for clean look)
     this.drawFace(topPoints, ColorUtils.getTopFaceColor(intensity));
-    
+
     // Draw elevation label for high terrain
     if (height > maxHeight * 0.5) {
-      this.drawElevationLabel(isoX, isoY, Math.floor(height));
+      this.drawElevationLabel(isoX, isoY - heightPixels, Math.floor(height));
     }
   }
 
   calculateTopPoints(x: number, y: number, cellSize: number): Point[] {
+    // Top face (diamond shape)
     return [
-      { x: x, y: y },
-      { x: x + cellSize, y: y + cellSize / 2 },
-      { x: x, y: y + cellSize },
-      { x: x - cellSize, y: y + cellSize / 2 }
+      { x, y },                                    // Back point
+      { x: x + cellSize, y: y + cellSize / 2 },    // Right point
+      { x, y: y + cellSize },                      // Front point
+      { x: x - cellSize, y: y + cellSize / 2 }     // Left point
     ];
   }
 
-  calculateLeftPoints(x: number, y: number, height: number, cellSize: number): Point[] {
-    const heightPixels = height * 0.3;
+  calculateLeftPoints(x: number, y: number, heightPixels: number, cellSize: number): Point[] {
+    // Left side face (connects top-left to bottom-left)
     return [
-      { x: x, y: y },
-      { x: x - cellSize, y: y + cellSize / 2 },
-      { x: x - cellSize, y: y + cellSize / 2 + heightPixels },
-      { x: x, y: y + heightPixels }
+      { x: x - cellSize, y: y + cellSize / 2 - heightPixels }, // Top-left corner
+      { x: x - cellSize, y: y + cellSize / 2 },                // Bottom-left corner
+      { x, y },                                                // Bottom-back corner
+      { x, y: y - heightPixels }                               // Top-back corner
     ];
   }
 
-  calculateRightPoints(x: number, y: number, height: number, cellSize: number): Point[] {
-    const heightPixels = height * 0.3;
+  calculateRightPoints(x: number, y: number, heightPixels: number, cellSize: number): Point[] {
+    // Right side face (connects top-right to bottom-right)
     return [
-      { x: x, y: y },
-      { x: x + cellSize, y: y + cellSize / 2 },
-      { x: x + cellSize, y: y + cellSize / 2 + heightPixels },
-      { x: x, y: y + heightPixels }
+      { x: x + cellSize, y: y + cellSize / 2 - heightPixels }, // Top-right corner
+      { x: x + cellSize, y: y + cellSize / 2 },                // Bottom-right corner
+      { x, y },                                                // Bottom-back corner
+      { x, y: y - heightPixels }                               // Top-back corner
+    ];
+  }
+
+  calculateFrontLeftPoints(x: number, y: number, heightPixels: number, cellSize: number): Point[] {
+    // Front-left face (connects front-top to left side)
+    return [
+      { x, y: y + cellSize - heightPixels },                 // Top-front corner
+      { x, y: y + cellSize },                                // Bottom-front corner
+      { x: x - cellSize, y: y + cellSize / 2 },              // Bottom-left corner
+      { x: x - cellSize, y: y + cellSize / 2 - heightPixels } // Top-left corner
+    ];
+  }
+
+  calculateFrontRightPoints(x: number, y: number, heightPixels: number, cellSize: number): Point[] {
+    // Front-right face (connects front-top to right side)
+    return [
+      { x, y: y + cellSize - heightPixels },                 // Top-front corner
+      { x, y: y + cellSize },                                // Bottom-front corner
+      { x: x + cellSize, y: y + cellSize / 2 },              // Bottom-right corner
+      { x: x + cellSize, y: y + cellSize / 2 - heightPixels } // Top-right corner
     ];
   }
 
@@ -78,11 +144,11 @@ class IsometricRenderer extends BaseRenderer {
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
     this.ctx.moveTo(points[0].x, points[0].y);
-    
+
     for (let i = 1; i < points.length; i++) {
       this.ctx.lineTo(points[i].x, points[i].y);
     }
-    
+
     this.ctx.closePath();
     this.ctx.fill();
     this.ctx.stroke();

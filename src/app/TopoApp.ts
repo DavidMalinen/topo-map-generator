@@ -12,7 +12,7 @@ class TopoApp {
   // DOM elements
   readonly canvas: HTMLCanvasElement;
   readonly ctx: CanvasRenderingContext2D;
-  
+
   // Systems
   readonly stateManager: StateManager;
   readonly state: AppState;
@@ -24,12 +24,12 @@ class TopoApp {
   readonly uiController: UIController;
   readonly inputController: InputController;
   readonly uiManager: UIManager;
-  
+
   // Grid properties
   readonly cellSize: number;
   readonly rows: number;
   readonly cols: number;
-  
+
   // Data models
   elevationData: ElevationData;
 
@@ -37,29 +37,29 @@ class TopoApp {
     // Initialize canvas
     this.canvas = this.initCanvas();
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
-    
+
     // Initialize dimensions
     this.cellSize = 40;
     this.rows = Math.floor(this.canvas.height / this.cellSize);
     this.cols = Math.floor(this.canvas.width / this.cellSize);
-    
+
     // Initialize state
     this.stateManager = new StateManager();
     this.state = this.stateManager.getState();
-    
+
     // Initialize systems
     this.rendering = new RenderingSystem(this.canvas, this.ctx);
-    this.effects = new EffectsSystem(this.canvas, this.cellSize);
+    this.effects = new EffectsSystem(this.canvas, this.cellSize, this.stateManager);
     this.generatorFactory = new TerrainGeneratorFactory();
-    
+
     // Initialize data
     this.elevationData = new ElevationData(this.rows, this.cols);
-    
+
     // Initialize controllers
     this.uiController = this.initUIController();
     this.inputController = new InputController(this.canvas, this.state, this.uiController);
     this.uiManager = new UIManager(this);
-    
+
     // Setup
     this.effects.initDitherMap(this.rows, this.cols, this.cellSize);
     this.uiManager.setupEventListeners();
@@ -92,11 +92,11 @@ class TopoApp {
   clearCanvas(): void {
     this.rendering.clearCanvas(this.ctx, this.canvas.width, this.canvas.height);
   }
-  
+
   modifyTerrainAt(x: number, y: number, amount: number): void {
     this.elevationData.modifyElevation(x, y, amount);
   }
-  
+
   drawGrid(): void {
     this.rendering.drawGrid(this.state.isometric, this.rows, this.cols, this.cellSize);
   }
@@ -106,6 +106,9 @@ class TopoApp {
   }
 
   drawTopo(): void {
+    // Update dither state on the canvas for IsometricRenderer to access
+    this.canvas.dataset.ditherActive = this.state.ditherActive.toString();
+
     // Get raw data from the model
     const terrainData: ElevationMatrix = this.elevationData.getRawData();
 

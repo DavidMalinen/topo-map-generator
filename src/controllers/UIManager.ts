@@ -131,9 +131,19 @@ class UIManager {
           const isActive = this.stateManager.toggleButton(effectName);
 
           // Call the appropriate state manager method
-          const stateMethod = this.stateManager[toggleMethod as keyof StateManager];
-          if (typeof stateMethod === 'function') {
-            (stateMethod as (active: boolean) => void)(isActive);
+          switch (toggleMethod) {
+            case 'toggleScanActive':
+              this.stateManager.toggleScanActive();
+              break;
+            case 'setDitherActive':
+              this.stateManager.setDitherActive(isActive);
+              break;
+            case 'setHoverActive':
+              this.stateManager.setHoverActive(isActive);
+              break;
+            case 'setColorShiftActive':
+              this.stateManager.setColorShiftActive(isActive);
+              break;
           }
 
           // Update button appearance
