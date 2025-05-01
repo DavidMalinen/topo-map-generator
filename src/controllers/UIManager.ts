@@ -1,5 +1,5 @@
-import { AppState, EffectButton, GeneratorButton, UIElements } from '../types';
 import TopoApp from '../app/TopoApp';
+import { AppState, EffectButton, GeneratorButton, UIElements } from '../types';
 import StateManager from './StateManager';
 
 class UIManager {

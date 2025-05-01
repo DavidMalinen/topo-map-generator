@@ -1,18 +1,18 @@
-import TopDownRenderer from '../renderers/TopDownRenderer';
-import IsometricRenderer from '../renderers/IsometricRenderer';
-import RandomTerrainGenerator from '../generators/RandomTerrainGenerator';
+import InputController from '../controllers/InputController';
+import StateManager from '../controllers/StateManager';
+import UIController from '../controllers/UIController';
+import UIManager from '../controllers/UIManager';
+import DitherEffect from '../effects/DitherEffect';
+import HoverEffect from '../effects/HoverEffect';
+import ScanLineEffect from '../effects/ScanLineEffect';
 import CenterPeakGenerator from '../generators/CenterPeakGenerator';
 import CityGridGenerator from '../generators/CityGridGenerator';
 import CrystalFormationGenerator from '../generators/CrystalFormationGenerator';
+import RandomTerrainGenerator from '../generators/RandomTerrainGenerator';
 import WavePatternGenerator from '../generators/WavePatternGenerator';
-import InputController from '../controllers/InputController';
-import UIController from '../controllers/UIController';
-import StateManager from '../controllers/StateManager';
-import ScanLineEffect from '../effects/ScanLineEffect';
-import HoverEffect from '../effects/HoverEffect';
-import DitherEffect from '../effects/DitherEffect';
 import ElevationData from '../models/ElevationData';
-import UIManager from '../controllers/UIManager';
+import IsometricRenderer from '../renderers/IsometricRenderer';
+import TopDownRenderer from '../renderers/TopDownRenderer';
 import type { AppState, ElevationMatrix } from '../types';
 
 class TopoApp {

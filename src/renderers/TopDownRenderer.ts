@@ -1,6 +1,6 @@
 import BaseRenderer from './BaseRenderer';
-import { ColorUtils } from '../utils/ColorUtils';
 import type { ElevationMatrix } from '../types';
+import { ColorUtils } from '../utils/ColorUtils';
 
 class TopDownRenderer extends BaseRenderer {
   constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
