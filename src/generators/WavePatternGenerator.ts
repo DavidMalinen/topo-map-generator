@@ -1,11 +1,13 @@
 import BaseTerrainGenerator from './BaseTerrainGenerator';
 
+import { ElevationMatrix } from '@/types';
+
 class WavePatternGenerator extends BaseTerrainGenerator {
   constructor(rows: number, cols: number, maxHeight: number) {
     super(rows, cols, maxHeight);
   }
 
-  generate(): void {
+  generate(): ElevationMatrix {
     this.elevationData = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
 
     for (let y = 0; y < this.rows; y++) {
@@ -17,6 +19,8 @@ class WavePatternGenerator extends BaseTerrainGenerator {
         this.elevationData[y][x] = Math.floor(this.elevationData[y][x] / 8) * 8;
       }
     }
+
+    return this.elevationData;
   }
 }
 

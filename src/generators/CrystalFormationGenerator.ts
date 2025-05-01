@@ -1,5 +1,5 @@
 import BaseTerrainGenerator from './BaseTerrainGenerator';
-import { Point } from '../types';
+import { ElevationMatrix, Point } from '../types';
 
 interface SeedPoint extends Point {
   height: number;
@@ -10,12 +10,13 @@ class CrystalFormationGenerator extends BaseTerrainGenerator {
     super(rows, cols, maxHeight);
   }
 
-  generate(): void {
+  generate(): ElevationMatrix {
     this.elevationData = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
     const numPoints = 5;
     const seedPoints = this.createSeedPoints(numPoints);
 
     this.createCrystalFormations(seedPoints);
+    return this.elevationData;
   }
 
   createSeedPoints(numPoints: number): SeedPoint[] {
@@ -48,7 +49,7 @@ class CrystalFormationGenerator extends BaseTerrainGenerator {
           const factor = 1 - (minDist / 10);
           this.elevationData[y][x] = closestPoint.height * Math.pow(factor, 0.8);
           this.elevationData[y][x] = Math.floor(this.elevationData[y][x] / 15) * 15;
-          
+
           if (Math.random() < 0.05 && this.elevationData[y][x] > 0) {
             this.elevationData[y][x] += Math.random() * 40;
           }

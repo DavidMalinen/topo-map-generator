@@ -1,14 +1,17 @@
 import BaseTerrainGenerator from './BaseTerrainGenerator';
 
+import { ElevationMatrix } from '@/types';
+
 class CenterPeakGenerator extends BaseTerrainGenerator {
   constructor(rows: number, cols: number, maxHeight: number) {
     super(rows, cols, maxHeight);
   }
 
-  generate(): void {
+  generate(): ElevationMatrix {
     this.clearTerrain();
     this.createCenterPeak();
     this.terraceElevation();
+    return this.elevationData; // Add return statement
   }
 
   clearTerrain(): void {

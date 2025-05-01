@@ -33,11 +33,11 @@ class ElevationData {
   isValidCoordinate(x: number, y: number): boolean {
     return x >= 0 && x < this.cols && y >= 0 && y < this.rows;
   }
-  
+
   clear(): void {
     this.elevationData = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
   }
-  
+
   randomize(maxHeight: number): void {
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -45,10 +45,10 @@ class ElevationData {
       }
     }
   }
-  
+
   setFromArray(data: ElevationMatrix): void {
     if (!data || data.length !== this.rows) return;
-    
+
     for (let y = 0; y < this.rows; y++) {
       if (data[y] && data[y].length === this.cols) {
         for (let x = 0; x < this.cols; x++) {
@@ -57,7 +57,11 @@ class ElevationData {
       }
     }
   }
-  
+
+  setData(data: ElevationMatrix): void {
+    return void this.setFromArray(data);
+  }
+
   getRawData(): ElevationMatrix {
     return this.elevationData;
   }

@@ -41,7 +41,7 @@ class InputController {
     }
     
     // For debugging
-      console.warn("Handlers set up:", !!this.handlers.onCoordsChange, !!this.handlers.onTerrainModify);
+    console.warn("Handlers set up:", !!this.handlers.onCoordsChange, !!this.handlers.onTerrainModify);
   }
 
   initEventListeners(): void {

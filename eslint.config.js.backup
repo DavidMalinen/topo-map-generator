@@ -40,7 +40,8 @@ const baseConfig = {
       ],
       'newlines-between': 'always',
       'alphabetize': { order: 'asc' }
-    }]
+    }],
+    'indent': ['error', 2]
   }
 };
 
@@ -79,7 +80,7 @@ const tsConfig = {
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['warn', { 
+    '@typescript-eslint/no-unused-vars': ['warn', {
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_',
       // This is important - it prevents errors for interface parameters
@@ -96,7 +97,26 @@ const tsConfig = {
       ],
       'newlines-between': 'always',
       'alphabetize': { order: 'asc' }
-    }]
+    }],
+    // Use the standard indent rule instead of the TypeScript specific one
+    'indent': ['error', 2],
+    // NEW RULES FOR RETURN TYPES
+    '@typescript-eslint/explicit-member-accessibility': ['warn', {
+      accessibility: 'explicit',
+      overrides: { constructors: 'no-public' }
+    }],
+    '@typescript-eslint/explicit-function-return-type': ['error', {
+      allowExpressions: true,
+      allowHigherOrderFunctions: true,
+      allowTypedFunctionExpressions: true,
+      allowDirectConstAssertionInArrowFunctions: true
+    }],
+    '@typescript-eslint/no-confusing-void-expression': ['error', {
+      ignoreArrowShorthand: true,
+      ignoreVoidOperator: true
+    }],
+    '@typescript-eslint/return-await': ['error', 'in-try-catch'],
+    '@typescript-eslint/consistent-type-returns': 'error'  // Updated rule name
   }
 };
 
@@ -117,12 +137,24 @@ const typesConfig = {
   }
 };
 
+// Add special config for abstract classes to require return types
+const abstractClassConfig = {
+  files: ['**/generators/BaseTerrainGenerator.ts', '**/effects/BaseEffect.ts'],
+  rules: {
+    '@typescript-eslint/explicit-function-return-type': 'error',
+    '@typescript-eslint/explicit-member-accessibility': ['error', {
+      accessibility: 'explicit'
+    }]
+  }
+};
+
 export default [
   eslint.configs.recommended,
   baseConfig,
   tsConfig,
   baseRendererConfig,
   typesConfig,
+  abstractClassConfig,
   {
     ignores: ['dist/**', 'node_modules/**', '**/*.config.js', '**/*.config.ts', '**/*.config.cjs']
   }

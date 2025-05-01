@@ -1,11 +1,13 @@
 import BaseTerrainGenerator from './BaseTerrainGenerator';
 
+import { ElevationMatrix } from '@/types';
+
 class CityGridGenerator extends BaseTerrainGenerator {
   constructor(rows: number, cols: number, maxHeight: number) {
     super(rows, cols, maxHeight);
   }
 
-  generate(): void {
+  generate(): ElevationMatrix {
     this.elevationData = Array.from({ length: this.rows }, () => Array(this.cols).fill(0));
     const blockSize = 2;
 
@@ -24,6 +26,7 @@ class CityGridGenerator extends BaseTerrainGenerator {
     }
 
     this.createStreets(blockSize);
+    return this.elevationData;
   }
 
   createStreets(blockSize: number): void {
