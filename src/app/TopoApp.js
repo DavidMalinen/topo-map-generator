@@ -1,6 +1,5 @@
 import TopDownRenderer from '../renderers/TopDownRenderer.js';
 import IsometricRenderer from '../renderers/IsometricRenderer.js';
-import { DitherMap } from '../models/DitherMap.js';
 import RandomTerrainGenerator from '../generators/RandomTerrainGenerator.js';
 import CenterPeakGenerator from '../generators/CenterPeakGenerator.js';
 import CityGridGenerator from '../generators/CityGridGenerator.js';

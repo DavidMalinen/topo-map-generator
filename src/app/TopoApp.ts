@@ -1,6 +1,5 @@
 import TopDownRenderer from '../renderers/TopDownRenderer';
 import IsometricRenderer from '../renderers/IsometricRenderer';
-import DitherMap from '../models/DitherMap';
 import RandomTerrainGenerator from '../generators/RandomTerrainGenerator';
 import CenterPeakGenerator from '../generators/CenterPeakGenerator';
 import CityGridGenerator from '../generators/CityGridGenerator';
@@ -14,7 +13,6 @@ import HoverEffect from '../effects/HoverEffect';
 import DitherEffect from '../effects/DitherEffect';
 import ElevationData from '../models/ElevationData';
 import UIManager from '../controllers/UIManager';
-import BaseTerrainGenerator from '../generators/BaseTerrainGenerator';
 import type { AppState, ElevationMatrix } from '../types';
 
 class TopoApp {

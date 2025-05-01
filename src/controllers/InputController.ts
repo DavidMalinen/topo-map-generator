@@ -3,7 +3,6 @@ import UIController from './UIController';
 
 class InputController {
   private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
   private state: AppState;
   private uiController: UIController;
   private cellSize: number;
@@ -14,7 +13,6 @@ class InputController {
 
   constructor(canvas: HTMLCanvasElement, state: AppState, uiController: UIController) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     this.state = state;
     this.uiController = uiController;
     this.cellSize = state.cellSize || 40;

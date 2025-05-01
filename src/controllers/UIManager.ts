@@ -1,4 +1,3 @@
-import ElevationData from '../models/ElevationData';
 import { AppState, EffectButton, GeneratorButton, UIElements } from '../types';
 import TopoApp from '../app/TopoApp';
 import StateManager from './StateManager';
@@ -7,16 +6,12 @@ class UIManager {
   private app: TopoApp;
   private state: AppState;
   private stateManager: StateManager;
-  private canvas: HTMLCanvasElement;
-  private elevationData: ElevationData;
   private elements: UIElements;
 
   constructor(app: TopoApp) {
     this.app = app;
     this.state = app.state;
     this.stateManager = app.stateManager;
-    this.canvas = app.canvas;
-    this.elevationData = app.elevationData;
 
     // Cache DOM elements
     this.elements = {

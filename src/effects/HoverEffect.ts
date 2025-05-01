@@ -6,8 +6,9 @@ class HoverEffect {
   private cols: number;
   private offsetX: number;
   private offsetY: number;
+  private fillMode: boolean; // Class property for configuration
 
-  constructor(canvas: HTMLCanvasElement, cellSize: number) {
+  constructor(canvas: HTMLCanvasElement, cellSize: number, options?: { fillMode?: boolean }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     this.cellSize = cellSize;
@@ -15,6 +16,7 @@ class HoverEffect {
     this.cols = Math.floor(canvas.width / cellSize);
     this.offsetX = canvas.width / 2;
     this.offsetY = canvas.height / 4;
+    this.fillMode = options?.fillMode ?? true; // Default to true if not specified
   }
 
   drawHoverEffects(currentX: number, currentY: number, isometric = false): void {
@@ -46,21 +48,44 @@ class HoverEffect {
   }
 
   highlightIsometricCell(x: number, y: number, intensity: number): void {
-    const isoX = this.offsetX + (x - y) * this.cellSize / 2;
-    const isoY = this.offsetY + (x + y) * this.cellSize / 4;
+    // Pre-calculated offsets for better performance
+    const isoX = this.offsetX + (x - y) * this.cellSize;
+    const isoY = this.offsetY + (x + y) * this.cellSize / 2;
     
-    this.ctx.fillStyle = `rgba(198, 255, 0, ${intensity * 0.2})`;
     this.ctx.beginPath();
     this.ctx.moveTo(isoX, isoY);
-    this.ctx.lineTo(isoX + this.cellSize/2, isoY - this.cellSize/4);
-    this.ctx.lineTo(isoX, isoY - this.cellSize/2);
-    this.ctx.lineTo(isoX - this.cellSize/2, isoY - this.cellSize/4);
+    this.ctx.lineTo(isoX + this.cellSize, isoY + this.cellSize/2);
+    this.ctx.lineTo(isoX, isoY + this.cellSize);
+    this.ctx.lineTo(isoX - this.cellSize, isoY + this.cellSize/2);
     this.ctx.closePath();
-    this.ctx.fill();
+    
+    // Use the class property instead of local variable
+    if (this.fillMode) {
+      this.ctx.fillStyle = `rgba(198, 255, 0, ${intensity * 0.2})`;
+      this.ctx.fill();
+    } else {
+      this.ctx.strokeStyle = `rgba(198, 255, 0, ${intensity * 0.5})`;
+      this.ctx.lineWidth = 2;
+      this.ctx.stroke();
+    }
   }
 
   isInBounds(x: number, y: number): boolean {
     return x >= 0 && x < this.cols && y >= 0 && y < this.rows;
+  }
+
+  // Add method to change fill mode at runtime
+  setFillMode(fill: boolean): void {
+    this.fillMode = fill;
+  }
+
+  // Add this method to actually use the canvas property
+  resize(): void {
+    // Recalculate dimensions when window size changes
+    this.rows = Math.floor(this.canvas.height / this.cellSize);
+    this.cols = Math.floor(this.canvas.width / this.cellSize);
+    this.offsetX = this.canvas.width / 2;
+    this.offsetY = this.canvas.height / 4;
   }
 }
 

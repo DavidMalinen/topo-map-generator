@@ -1,6 +1,5 @@
 class ScanLineEffect {
   private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
   private animationFrameId: number | null;
   private position: number;
   private scanHeight: number;
@@ -9,7 +8,6 @@ class ScanLineEffect {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
     this.animationFrameId = null;
     this.position = 0;
     this.scanHeight = 2;

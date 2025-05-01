@@ -46,7 +46,6 @@ class DitherEffect {
       // Apply dither pattern using our persistent patterns
       ditherCtx.fillStyle = `rgba(198, 255, 0, 0.05)`;
       
-      const tileSize = 4;
       const cols = Math.floor(ctx.canvas.width / cellSize);
       const index = y * cols + x;
       
