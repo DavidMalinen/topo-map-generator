@@ -7,45 +7,8 @@ class IsometricRenderer extends BaseRenderer {
     super(canvas, ctx);
   }
 
-  draw(): void {
-    // Implementation
-  }
-
-  drawIsometricGrid(rows: number, cols: number, cellSize: number): void {
-    this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.1)';
-    this.ctx.lineWidth = 1;
-
-    // Draw horizontal grid lines
-    for (let y = 0; y <= rows; y++) {
-      this.ctx.beginPath();
-      const startX = this.offsetX - cols * cellSize / 2;
-      const startY = this.offsetY + y * cellSize / 2;
-      this.ctx.moveTo(startX, startY);
-      this.ctx.lineTo(startX + cols * cellSize, startY);
-      this.ctx.stroke();
-    }
-
-    // Draw vertical grid lines
-    for (let x = 0; x <= cols; x++) {
-      this.ctx.beginPath();
-      const startX = this.offsetX - cols * cellSize / 2 + x * cellSize;
-      const startY = this.offsetY;
-      this.ctx.moveTo(startX, startY);
-      this.ctx.lineTo(startX, startY + rows * cellSize / 2);
-      this.ctx.stroke();
-    }
-  }
-
-  drawGridLines(gridLines: Point[][]): void {
-    this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.1)';
-    this.ctx.lineWidth = 1;
-
-    gridLines.forEach(line => {
-      this.ctx.beginPath();
-      this.ctx.moveTo(line[0].x, line[0].y);
-      this.ctx.lineTo(line[1].x, line[1].y);
-      this.ctx.stroke();
-    });
+  drawGrid(rows: number, cols: number, cellSize: number): void {
+    this.gridRenderer.drawIsometricGrid(rows, cols, cellSize);
   }
 
   drawTerrain(elevationData: ElevationMatrix, maxHeight: number, cellSize: number): void {
@@ -63,8 +26,8 @@ class IsometricRenderer extends BaseRenderer {
     const intensity = height / maxHeight;
     
     // Calculate isometric position
-    const isoX = this.offsetX + (x - y) * cellSize / 2;
-    const isoY = this.offsetY + (x + y) * cellSize / 4;
+    const isoX = this.offsetX + (x - y) * cellSize;
+    const isoY = this.offsetY + (x + y) * cellSize / 2;
     
     // Calculate points for the cube faces
     const topPoints = this.calculateTopPoints(isoX, isoY, cellSize);
@@ -85,9 +48,9 @@ class IsometricRenderer extends BaseRenderer {
   calculateTopPoints(x: number, y: number, cellSize: number): Point[] {
     return [
       { x: x, y: y },
-      { x: x + cellSize / 2, y: y - cellSize / 4 },
-      { x: x, y: y - cellSize / 2 },
-      { x: x - cellSize / 2, y: y - cellSize / 4 }
+      { x: x + cellSize, y: y + cellSize / 2 },
+      { x: x, y: y + cellSize },
+      { x: x - cellSize, y: y + cellSize / 2 }
     ];
   }
 
@@ -95,8 +58,8 @@ class IsometricRenderer extends BaseRenderer {
     const heightPixels = height * 0.3;
     return [
       { x: x, y: y },
-      { x: x - cellSize / 2, y: y - cellSize / 4 },
-      { x: x - cellSize / 2, y: y - cellSize / 4 + heightPixels },
+      { x: x - cellSize, y: y + cellSize / 2 },
+      { x: x - cellSize, y: y + cellSize / 2 + heightPixels },
       { x: x, y: y + heightPixels }
     ];
   }
@@ -105,8 +68,8 @@ class IsometricRenderer extends BaseRenderer {
     const heightPixels = height * 0.3;
     return [
       { x: x, y: y },
-      { x: x + cellSize / 2, y: y - cellSize / 4 },
-      { x: x + cellSize / 2, y: y - cellSize / 4 + heightPixels },
+      { x: x + cellSize, y: y + cellSize / 2 },
+      { x: x + cellSize, y: y + cellSize / 2 + heightPixels },
       { x: x, y: y + heightPixels }
     ];
   }

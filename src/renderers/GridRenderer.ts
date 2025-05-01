@@ -1,66 +1,89 @@
+import type { Point } from '../types';
+
 class GridRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private cellSize: number;
-  private rows: number;
-  private cols: number;
   private offsetX: number;
   private offsetY: number;
 
-  constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, cellSize: number, rows: number, cols: number) {
+  constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.cellSize = cellSize;
-    this.rows = rows;
-    this.cols = cols;
     this.offsetX = canvas.width / 2;
     this.offsetY = canvas.height / 4;
   }
 
-  drawTopDownGrid(): void {
+  drawTopDownGrid(cellSize: number, rows: number, cols: number): void {
     this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.1)';
     this.ctx.lineWidth = 1;
 
     // Draw vertical lines
-    for (let x = 0; x <= this.cols; x++) {
+    for (let x = 0; x <= cols; x++) {
       this.ctx.beginPath();
-      this.ctx.moveTo(x * this.cellSize, 0);
-      this.ctx.lineTo(x * this.cellSize, this.canvas.height);
+      this.ctx.moveTo(x * cellSize, 0);
+      this.ctx.lineTo(x * cellSize, this.canvas.height);
       this.ctx.stroke();
     }
 
     // Draw horizontal lines
-    for (let y = 0; y <= this.rows; y++) {
+    for (let y = 0; y <= rows; y++) {
       this.ctx.beginPath();
-      this.ctx.moveTo(0, y * this.cellSize);
-      this.ctx.lineTo(this.canvas.width, y * this.cellSize);
+      this.ctx.moveTo(0, y * cellSize);
+      this.ctx.lineTo(this.canvas.width, y * cellSize);
       this.ctx.stroke();
     }
   }
 
-  drawIsometricGrid(): void {
-    this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.1)';
+  drawIsometricGrid(rows: number, cols: number, cellSize: number): void {
+    this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.15)';
     this.ctx.lineWidth = 1;
 
-    // Draw horizontal grid lines
-    for (let y = 0; y <= this.rows; y++) {
-      this.ctx.beginPath();
-      const startX = this.offsetX - this.cols * this.cellSize / 2;
-      const startY = this.offsetY + y * this.cellSize / 2;
-      this.ctx.moveTo(startX, startY);
-      this.ctx.lineTo(startX + this.cols * this.cellSize, startY);
-      this.ctx.stroke();
+    // Create a list of lines to draw
+    const gridLines: Point[][] = [];
+
+    // Horizontal lines (diagonal in isometric view)
+    for (let y = 0; y <= rows; y++) {
+      const points: Point[] = [];
+      for (let x = 0; x <= cols; x++) {
+        // Calculate isometric projection (no height adjustment)
+        const isoX = (x - y) * cellSize;
+        const isoY = (x + y) * cellSize / 2;
+
+        points.push({
+          x: this.offsetX + isoX,
+          y: this.offsetY + isoY
+        });
+      }
+      gridLines.push(points);
     }
 
-    // Draw vertical grid lines
-    for (let x = 0; x <= this.cols; x++) {
-      this.ctx.beginPath();
-      const startX = this.offsetX - this.cols * this.cellSize / 2 + x * this.cellSize;
-      const startY = this.offsetY;
-      this.ctx.moveTo(startX, startY);
-      this.ctx.lineTo(startX, startY + this.rows * this.cellSize / 2);
-      this.ctx.stroke();
+    // Vertical lines (diagonal in isometric view)
+    for (let x = 0; x <= cols; x++) {
+      const points: Point[] = [];
+      for (let y = 0; y <= rows; y++) {
+        // Calculate isometric projection (no height adjustment)
+        const isoX = (x - y) * cellSize;
+        const isoY = (x + y) * cellSize / 2;
+
+        points.push({
+          x: this.offsetX + isoX,
+          y: this.offsetY + isoY
+        });
+      }
+      gridLines.push(points);
     }
+
+    // Draw the grid lines
+    gridLines.forEach(points => {
+      this.ctx.beginPath();
+      this.ctx.moveTo(points[0].x, points[0].y);
+      
+      for (let i = 1; i < points.length; i++) {
+        this.ctx.lineTo(points[i].x, points[i].y);
+      }
+      
+      this.ctx.stroke();
+    });
   }
 }
 

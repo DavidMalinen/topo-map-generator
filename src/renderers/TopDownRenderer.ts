@@ -7,29 +7,8 @@ class TopDownRenderer extends BaseRenderer {
     super(canvas, ctx);
   }
 
-  draw(): void {
-    // Implementation
-  }
-
-  drawGrid(cellSize: number, rows: number, cols: number): void {
-    this.ctx.strokeStyle = 'rgba(198, 255, 0, 0.1)';
-    this.ctx.lineWidth = 1;
-
-    // Draw vertical lines
-    for (let x = 0; x <= cols; x++) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x * cellSize, 0);
-      this.ctx.lineTo(x * cellSize, this.canvas.height);
-      this.ctx.stroke();
-    }
-
-    // Draw horizontal lines
-    for (let y = 0; y <= rows; y++) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y * cellSize);
-      this.ctx.lineTo(this.canvas.width, y * cellSize);
-      this.ctx.stroke();
-    }
+  drawGrid(rows: number, cols: number, cellSize: number): void {
+    this.gridRenderer.drawTopDownGrid(cellSize, rows, cols);
   }
   
   calculateFillOpacity(elevation: number, maxHeight: number, intensity: number): number {
@@ -42,7 +21,7 @@ class TopDownRenderer extends BaseRenderer {
     }
   }
   
-  drawTerrain(elevationData: ElevationMatrix, cellSize: number, maxHeight: number): void {
+  drawTerrain(elevationData: ElevationMatrix, maxHeight: number, cellSize: number): void {
     if (!this.ctx) return;
 
     for (let y = 0; y < elevationData.length; y++) {

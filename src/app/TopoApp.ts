@@ -135,52 +135,52 @@ class TopoApp {
     this.elevationData.modifyElevation(x, y, amount);
   }
   
-  drawGrid(): void {
-    if (this.state.isometric) {
-      this.isometricRenderer.drawIsometricGrid(this.rows, this.cols, this.cellSize);
-    } else {
-      this.topDownRenderer.drawGrid(this.cellSize, this.rows, this.cols);
+    drawGrid(): void {
+        if (this.state.isometric) {
+            this.isometricRenderer.drawGrid(this.rows, this.cols, this.cellSize);
+        } else {
+            this.topDownRenderer.drawGrid(this.rows, this.cols, this.cellSize);
+        }
     }
-  }
 
   updateStatus(message: string): void {
     this.uiManager.updateStatus(message);
   }
 
-  drawTopo(): void {
-    this.clearCanvas();
+    drawTopo(): void {
+        // Get raw data from the model
+        const terrainData: ElevationMatrix = this.elevationData.getRawData();
 
-    // Get raw data from the model
-    const terrainData: ElevationMatrix = this.elevationData.getRawData();
+        if (this.state.isometric) {
+            this.isometricRenderer.draw(
+                terrainData,
+                this.state.maxHeight,
+                this.cellSize,
+                this.rows,
+                this.cols
+            );
+        } else {
+            this.topDownRenderer.draw(
+                terrainData,
+                this.state.maxHeight,
+                this.cellSize,
+                this.rows,
+                this.cols
+            );
+        }
 
-    if (this.state.isometric) {
-      this.isometricRenderer.drawTerrain(
-        terrainData,
-        this.state.maxHeight,
-        this.cellSize
-      );
-    } else {
-      this.topDownRenderer.drawTerrain(
-        terrainData,
-        this.cellSize,
-        this.state.maxHeight
-      );
-    }
+        if (this.state.ditherActive) {
+            this.applyDitherEffect();
+        }
 
-    this.drawGrid();
-    
-    if (this.state.ditherActive) {
-      this.applyDitherEffect();
+        if (this.state.hoverActive) {
+            this.hoverEffect.drawHoverEffects(
+                this.state.currentX,
+                this.state.currentY,
+                this.state.isometric
+            );
+        }
     }
-    
-    if (this.state.hoverActive) {
-      this.hoverEffect.drawHoverEffects(
-        this.state.currentX, 
-        this.state.currentY, 
-        this.state.isometric
-      );
-    }
-  }
 
   applyDitherEffect(): void {
     const terrainData = this.elevationData.getRawData();
