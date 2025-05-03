@@ -12,7 +12,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
-    project: './tsconfig.json'
+    project: require('path').resolve(__dirname, './tsconfig.json')
   },
   plugins: [
     '@typescript-eslint',
@@ -52,6 +52,13 @@ module.exports = {
     }]
   },
   overrides: [
+    // Exclude ESLint config file from TypeScript processing
+    {
+      files: [".eslintrc.cjs"],
+      parserOptions: {
+        project: null // Disable TypeScript project for this file
+      }
+    },
     // Base renderer file exemption
     {
       files: ['**/BaseRenderer.ts'],

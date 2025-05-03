@@ -1,53 +1,75 @@
 export class ColorUtils {
-  static getColorWithShift(opacity: number, elevation: number, maxHeight: number): string {
-    // const baseColor = 'rgb(198, 255, 0)';
-    // const fadeColor = 'rgb(0, 187, 255)';
-    
-    // Calculate color blend based on elevation
-    const blend = Math.min(1, elevation / maxHeight);
-    const r = Math.round(198 * (1 - blend) + 0 * blend);
-    const g = Math.round(255 * (1 - blend) + 187 * blend);
-    const b = Math.round(0 * (1 - blend) + 255 * blend);
-    
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+  // Main color method with color shift support
+  static getColorWithShift(opacity: number, elevation: number, maxHeight: number, colorShiftActive: boolean = false): string {
+    if (!colorShiftActive) {
+      return `rgba(198, 255, 0, ${opacity})`;
+    }
+
+    // Color shift based on elevation
+    const normalizedElevation = Math.min(1, elevation / maxHeight);
+
+    if (normalizedElevation < 0.3) {
+      // Low areas - blue tones
+      return `rgba(0, 200, 255, ${opacity})`;
+    } else if (normalizedElevation < 0.7) {
+      // Mid areas - acid green
+      return `rgba(198, 255, 0, ${opacity})`;
+    } else {
+      // High areas - red/orange
+      return `rgba(255, 51, 51, ${opacity})`;
+    }
   }
 
-  static getTopFaceColor(intensity: number): string {
-    return `rgba(198, 255, 0, ${0.1 + intensity * 0.5})`;
-  }
-  
-  static getRightFaceColor(intensity: number): string {
-    return `rgba(149, 191, 0, ${0.1 + intensity * 0.4})`;
-  }
-  
-  static getLeftFaceColor(intensity: number): string {
-    return `rgba(99, 127, 0, ${0.1 + intensity * 0.3})`;
-  }
-  
-  static generateColorPalette(baseColor: string, numColors: number): string[] {
-    const palette: string[] = [];
-    const rgbBase = this.hexToRgb(baseColor);
-    
-    if (!rgbBase) return palette;
-    
-    for (let i = 0; i < numColors; i++) {
-      const factor = i / (numColors - 1);
-      const r = Math.round(rgbBase.r + (255 - rgbBase.r) * factor);
-      const g = Math.round(rgbBase.g + (255 - rgbBase.g) * factor);
-      const b = Math.round(rgbBase.b + (255 - rgbBase.b) * factor);
-      
-      palette.push(`rgb(${r}, ${g}, ${b})`);
+  // Get opacity for isometric faces based on elevation and face type
+  static calculateFaceOpacity(elevation: number, maxHeight: number, intensity: number, faceType: 'top' | 'left' | 'right'): number {
+    if (elevation < maxHeight * 0.2) {
+      // Low heights - minimal visibility
+      switch (faceType) {
+      case 'top': return 0.1 + (intensity * 0.1);
+      case 'left':
+      case 'right': return 0; // No fill, just outline
+      }
+    } else if (elevation < maxHeight * 0.5) {
+      // Middle heights - some visibility
+      switch (faceType) {
+      case 'top': return 0.3 + (intensity * 0.2);
+      case 'left': return 0.1;
+      case 'right': return 0.05;
+      }
+    } else {
+      // Tall structures - full presence
+      switch (faceType) {
+      case 'top': return 0.6 + (intensity * 0.2);
+      case 'left': return 0.4;
+      case 'right': return 0.3;
+      }
     }
-    
-    return palette;
   }
-  
-  static hexToRgb(hex: string): { r: number, g: number, b: number } | null {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
+
+  // Face color helpers that use the elevation-based opacity calculation
+  static getTopFaceColor(intensity: number, elevation: number = 0, maxHeight: number = 0, colorShiftActive: boolean = false): string {
+    const opacity = this.calculateFaceOpacity(elevation, maxHeight, intensity, 'top');
+    return this.getColorWithShift(opacity, elevation, maxHeight, colorShiftActive);
+  }
+
+  static getRightFaceColor(intensity: number, elevation: number = 0, maxHeight: number = 0, colorShiftActive: boolean = false): string {
+    const opacity = this.calculateFaceOpacity(elevation, maxHeight, intensity, 'right');
+    return this.getColorWithShift(opacity, elevation, maxHeight, colorShiftActive);
+  }
+
+  static getLeftFaceColor(intensity: number, elevation: number = 0, maxHeight: number = 0, colorShiftActive: boolean = false): string {
+    const opacity = this.calculateFaceOpacity(elevation, maxHeight, intensity, 'left');
+    return this.getColorWithShift(opacity, elevation, maxHeight, colorShiftActive);
+  }
+
+  // Methods for front faces with slightly reduced opacity
+  static getFrontLeftFaceColor(intensity: number, elevation: number = 0, maxHeight: number = 0, colorShiftActive: boolean = false): string {
+    const leftOpacity = this.calculateFaceOpacity(elevation, maxHeight, intensity, 'left');
+    return this.getColorWithShift(leftOpacity * 0.8, elevation, maxHeight, colorShiftActive);
+  }
+
+  static getFrontRightFaceColor(intensity: number, elevation: number = 0, maxHeight: number = 0, colorShiftActive: boolean = false): string {
+    const rightOpacity = this.calculateFaceOpacity(elevation, maxHeight, intensity, 'right');
+    return this.getColorWithShift(rightOpacity * 0.7, elevation, maxHeight, colorShiftActive);
   }
 }

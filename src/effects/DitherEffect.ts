@@ -1,7 +1,7 @@
 import BaseEffect from './BaseEffect';
+import StateManager from '../controllers/StateManager';
 import DitherMap from '../models/DitherMap';
 import { DitherPattern, Point } from '../types';
-import StateManager from '../controllers/StateManager';
 
 class DitherEffect extends BaseEffect {
   private ditherMap: DitherMap;

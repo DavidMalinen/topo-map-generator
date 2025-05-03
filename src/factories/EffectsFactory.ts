@@ -1,8 +1,8 @@
+import StateManager from '../controllers/StateManager';
 import BaseEffect from '../effects/BaseEffect';
 import DitherEffect from '../effects/DitherEffect';
 import HoverEffect from '../effects/HoverEffect';
 import ScanLineEffect from '../effects/ScanLineEffect';
-import StateManager from '../controllers/StateManager';
 
 class EffectsFactory {
   readonly DitherEffect: typeof DitherEffect;
@@ -17,14 +17,14 @@ class EffectsFactory {
 
   createEffect(type: string, canvas: HTMLCanvasElement, cellSize: number, stateManager: StateManager): BaseEffect {
     switch (type) {
-      case 'dither':
-        return this.createDitherEffect(stateManager);
-      case 'hover':
-        return this.createHoverEffect(canvas, cellSize);
-      case 'scanline':
-        return this.createScanLineEffect(canvas);
-      default:
-        throw new Error(`Unknown effect type: ${type}`);
+    case 'dither':
+      return this.createDitherEffect(stateManager);
+    case 'hover':
+      return this.createHoverEffect(canvas, cellSize);
+    case 'scanline':
+      return this.createScanLineEffect(canvas);
+    default:
+      throw new Error(`Unknown effect type: ${type}`);
     }
   }
 

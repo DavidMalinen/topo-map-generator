@@ -106,29 +106,23 @@ class TopoApp {
   }
 
   drawTopo(): void {
-    // Update dither state on the canvas for IsometricRenderer to access
+    // Set state flags on canvas for renderers to access
     this.canvas.dataset.ditherActive = this.state.ditherActive.toString();
+    this.canvas.dataset.colorShiftActive = this.state.colorShiftActive.toString();
 
-    // Get raw data from the model
     const terrainData: ElevationMatrix = this.elevationData.getRawData();
 
-    // Draw terrain
-    this.rendering.drawTerrain(this.state.isometric, terrainData, this.state.maxHeight,
-      this.cellSize, this.rows, this.cols);
+    this.rendering.drawTerrain(this.state.isometric, terrainData, this.state.maxHeight, this.cellSize, this.rows, this.cols);
 
-    // Apply effects
     if (this.state.ditherActive) {
-      this.effects.applyDitherEffect(this.ctx, terrainData, this.rows, this.cols,
-        this.state.maxHeight, this.cellSize);
+      this.effects.applyDitherEffect(this.ctx, terrainData, this.rows, this.cols, this.state.maxHeight, this.cellSize);
     }
 
     if (this.state.hoverActive) {
-      this.effects.drawHoverEffects(this.state.currentX, this.state.currentY,
-        this.state.isometric);
+      this.effects.drawHoverEffects(this.state.currentX, this.state.currentY, this.state.isometric);
     }
   }
 
-  // Interface for UIManager to access terrain generators
   getTerrainGeneratorFactory(): TerrainGeneratorFactory {
     return this.generatorFactory;
   }

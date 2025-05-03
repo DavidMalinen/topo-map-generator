@@ -1,11 +1,12 @@
-import { ColorUtils } from '@/utils/ColorUtils';
+import StateManager from '../controllers/StateManager';
 import BaseEffect from '../effects/BaseEffect';
 import DitherEffect from '../effects/DitherEffect';
 import HoverEffect from '../effects/HoverEffect';
 import ScanLineEffect from '../effects/ScanLineEffect';
 import EffectsFactory from '../factories/EffectsFactory';
-import StateManager from '../controllers/StateManager';
 import { ElevationMatrix, Point } from '../types';
+
+import { ColorUtils } from '@/utils/ColorUtils';
 
 // Define the interface
 interface IsometricDitherDetail {
@@ -16,6 +17,10 @@ interface IsometricDitherDetail {
   intensity: number;
   height: number;
   maxHeight: number;
+  leftColor?: string;
+  rightColor?: string;
+  frontLeftColor?: string;
+  frontRightColor?: string;
 }
 
 class EffectsSystem {
@@ -94,55 +99,55 @@ class EffectsSystem {
 
   toggleEffect(effectName: string, active: boolean): void {
     switch (effectName) {
-      case 'scan':
-        this.toggleScanLine(active);
-        break;
-      case 'dither':
-        this.stateManager.setDitherActive(active);
-        break;
-      case 'hover':
-        // Hover effect doesn't need runtime toggle, just redraw
-        break;
+    case 'scan':
+      this.toggleScanLine(active);
+      break;
+    case 'dither':
+      this.stateManager.setDitherActive(active);
+      break;
+    case 'hover':
+      // Hover effect doesn't need runtime toggle, just redraw
+      break;
       // Add other effects as needed
     }
   }
 
   setupIsometricDithering(canvas: HTMLCanvasElement): void {
-    canvas.addEventListener('apply-isometric-dither', ((e: CustomEvent) => {
+    canvas.addEventListener('apply-isometric-dither', ((e: CustomEvent<IsometricDitherDetail>) => {
+      // Only apply if dithering is active AND we're in isometric view
       if (!this.stateManager.getState().isometric) return;
 
-      // Cast event to expected type
-      const detail: IsometricDitherDetail = e.detail;
-
+      const detail = e.detail;
       const ctx = canvas.getContext('2d')!;
+      const colorShiftActive = canvas.dataset.colorShiftActive === 'true';
 
-      // Pass face type for pattern selection
+      // Use the colors provided in the event
       this.ditherEffect.drawDitheredIsometricFace(
         ctx,
         detail.leftPoints,
-        ColorUtils.getLeftFaceColor(detail.intensity * 0.8),
-        detail.intensity * 0.7,
+        detail.leftColor || ColorUtils.getLeftFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.intensity * 0.7
       );
 
       this.ditherEffect.drawDitheredIsometricFace(
         ctx,
         detail.rightPoints,
-        ColorUtils.getRightFaceColor(detail.intensity * 0.6),
-        detail.intensity * 0.5,
+        detail.rightColor || ColorUtils.getRightFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.intensity * 0.5
       );
 
       this.ditherEffect.drawDitheredIsometricFace(
         ctx,
         detail.frontLeftPoints,
-        ColorUtils.getLeftFaceColor(detail.intensity * 0.7),
-        detail.intensity * 0.4,
+        detail.frontLeftColor || ColorUtils.getFrontLeftFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.intensity * 0.4
       );
 
       this.ditherEffect.drawDitheredIsometricFace(
         ctx,
         detail.frontRightPoints,
-        ColorUtils.getRightFaceColor(detail.intensity * 0.5),
-        detail.intensity * 0.3,
+        detail.frontRightColor || ColorUtils.getFrontRightFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.intensity * 0.3
       );
     }) as EventListener);
   }

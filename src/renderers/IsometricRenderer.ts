@@ -3,8 +3,12 @@ import { ElevationMatrix, Point } from '../types';
 import { ColorUtils } from '../utils/ColorUtils';
 
 class IsometricRenderer extends BaseRenderer {
+  private colorShiftActive: boolean = false;
+
   constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
     super(canvas, ctx);
+    // Check for color shift state
+    this.colorShiftActive = canvas.dataset.colorShiftActive === 'true';
   }
 
   drawGrid(rows: number, cols: number, cellSize: number): void {
@@ -51,14 +55,21 @@ class IsometricRenderer extends BaseRenderer {
     // Apply different rendering based on height and dithering state
     const ditherActive = this.canvas.dataset.ditherActive === 'true';
 
+    // Get colors with exact opacity per the reference implementation
+    const topColor = ColorUtils.getTopFaceColor(intensity, height, maxHeight, this.colorShiftActive);
+    const leftColor = ColorUtils.getLeftFaceColor(intensity, height, maxHeight, this.colorShiftActive);
+    const rightColor = ColorUtils.getRightFaceColor(intensity, height, maxHeight, this.colorShiftActive);
+    const frontLeftColor = ColorUtils.getFrontLeftFaceColor(intensity, height, maxHeight, this.colorShiftActive);
+    const frontRightColor = ColorUtils.getFrontRightFaceColor(intensity, height, maxHeight, this.colorShiftActive);
+
     // Draw faces in correct visibility order (back to front)
     if (ditherActive && height > maxHeight * 0.4) {
       // For taller structures, use dithering on side faces
       // First, draw solid faces with slight opacity
-      this.drawFace(leftPoints, ColorUtils.getLeftFaceColor(intensity * 0.3));
-      this.drawFace(rightPoints, ColorUtils.getRightFaceColor(intensity * 0.2));
-      this.drawFace(frontLeftPoints, ColorUtils.getLeftFaceColor(intensity * 0.25));
-      this.drawFace(frontRightPoints, ColorUtils.getRightFaceColor(intensity * 0.2));
+      this.drawFace(leftPoints, leftColor.replace(/[\d.]+\)$/g, "0.3)")); // Low opacity base
+      this.drawFace(rightPoints, rightColor.replace(/[\d.]+\)$/g, "0.2)")); // Low opacity base
+      this.drawFace(frontLeftPoints, frontLeftColor.replace(/[\d.]+\)$/g, "0.25)")); // Low opacity base
+      this.drawFace(frontRightPoints, frontRightColor.replace(/[\d.]+\)$/g, "0.2)")); // Low opacity base
 
       // Then apply dithering through the effects system
       const event = new CustomEvent('apply-isometric-dither', {
@@ -69,25 +80,58 @@ class IsometricRenderer extends BaseRenderer {
           frontRightPoints: frontRightPoints,
           intensity: intensity,
           height: height,
-          maxHeight: maxHeight
+          maxHeight: maxHeight,
+          leftColor: leftColor,
+          rightColor: rightColor,
+          frontLeftColor: frontLeftColor,
+          frontRightColor: frontRightColor
         }
       });
       this.canvas.dispatchEvent(event);
     } else {
       // Standard drawing for smaller structures or when dithering is off
-      this.drawFace(leftPoints, ColorUtils.getLeftFaceColor(intensity));
-      this.drawFace(rightPoints, ColorUtils.getRightFaceColor(intensity));
-      this.drawFace(frontLeftPoints, ColorUtils.getLeftFaceColor(intensity * 0.8));
-      this.drawFace(frontRightPoints, ColorUtils.getRightFaceColor(intensity * 0.7));
+      this.drawFace(leftPoints, leftColor);
+      this.drawFace(rightPoints, rightColor);
+      this.drawFace(frontLeftPoints, frontLeftColor);
+      this.drawFace(frontRightPoints, frontRightColor);
     }
 
     // Always draw top face last (without dithering for clean look)
-    this.drawFace(topPoints, ColorUtils.getTopFaceColor(intensity));
+    this.drawFace(topPoints, topColor);
 
     // Draw elevation label for high terrain
     if (height > maxHeight * 0.5) {
       this.drawElevationLabel(isoX, isoY - heightPixels, Math.floor(height));
     }
+
+    // Draw wireframe outlines with intensity based on height
+    this.drawWireframe(isoX, isoY, height, heightPixels, maxHeight, cellSize);
+  }
+
+  // New method to draw wireframe outlines like in topo-script.js
+  drawWireframe(isoX: number, isoY: number, elevation: number, heightPixels: number, maxHeight: number, cellSize: number): void {
+    const outlineIntensity = Math.min(1, elevation / (maxHeight * 0.7));
+    this.ctx.strokeStyle = ColorUtils.getColorWithShift(outlineIntensity * 0.8, elevation, maxHeight, this.colorShiftActive);
+    this.ctx.lineWidth = Math.max(1, outlineIntensity * 1.5);
+
+    // Top face
+    this.ctx.beginPath();
+    this.ctx.moveTo(isoX, isoY - heightPixels);
+    this.ctx.lineTo(isoX + cellSize, isoY + cellSize / 2 - heightPixels);
+    this.ctx.lineTo(isoX, isoY + cellSize - heightPixels);
+    this.ctx.lineTo(isoX - cellSize, isoY + cellSize / 2 - heightPixels);
+    this.ctx.closePath();
+    this.ctx.stroke();
+
+    // Side faces (vertical edges)
+    this.ctx.beginPath();
+    this.ctx.moveTo(isoX, isoY + cellSize - heightPixels);
+    this.ctx.lineTo(isoX, isoY + cellSize);
+    this.ctx.moveTo(isoX + cellSize, isoY + cellSize / 2 - heightPixels);
+    this.ctx.lineTo(isoX + cellSize, isoY + cellSize / 2);
+    this.ctx.moveTo(isoX - cellSize, isoY + cellSize / 2 - heightPixels);
+    this.ctx.lineTo(isoX - cellSize, isoY + cellSize / 2);
+    this.ctx.stroke();
   }
 
   calculateTopPoints(x: number, y: number, cellSize: number): Point[] {
