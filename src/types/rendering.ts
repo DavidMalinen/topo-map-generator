@@ -1,5 +1,3 @@
-export type DitherPattern = number[];
-
 export interface IsometricCubeOptions {
   x: number;
   y: number;

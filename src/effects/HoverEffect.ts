@@ -53,6 +53,10 @@ class HoverEffect extends BaseEffect {
     this.ctx.fillStyle = `rgba(198, 255, 0, ${opacity * 0.2})`;
     this.ctx.fill();
   }
+
+  dispose(): void {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  }
 }
 
 export default HoverEffect;

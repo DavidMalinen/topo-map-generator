@@ -1,3 +1,5 @@
+import { DitherPattern, IsoFaceDitherMaps } from "./dither";
+
 export interface AppState {
   isometric: boolean;
   maxHeight: number;
@@ -11,7 +13,7 @@ export interface AppState {
   hoverActive: boolean;
   colorShiftActive: boolean;
   activeButtons: Record<string, boolean>;
-  ditherMap: number[][];
-  isoFaceDitherMaps: Record<string, number[]>;
+  ditherMap: DitherPattern[];
+  isoFaceDitherMaps: IsoFaceDitherMaps;
   cellSize: number;
 }

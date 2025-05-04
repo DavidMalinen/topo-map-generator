@@ -17,19 +17,19 @@ class EffectsFactory {
 
   createEffect(type: string, canvas: HTMLCanvasElement, cellSize: number, stateManager: StateManager): BaseEffect {
     switch (type) {
-    case 'dither':
-      return this.createDitherEffect(stateManager);
-    case 'hover':
-      return this.createHoverEffect(canvas, cellSize);
-    case 'scanline':
-      return this.createScanLineEffect(canvas);
-    default:
-      throw new Error(`Unknown effect type: ${type}`);
+      case 'dither':
+        return this.createDitherEffect(canvas, cellSize, stateManager);
+      case 'hover':
+        return this.createHoverEffect(canvas, cellSize);
+      case 'scanline':
+        return this.createScanLineEffect(canvas);
+      default:
+        throw new Error(`Unknown effect type: ${type}`);
     }
   }
 
-  private createDitherEffect(stateManager: StateManager): DitherEffect {
-    const effect = new DitherEffect(stateManager);
+  private createDitherEffect(canvas: HTMLCanvasElement, cellSize: number, stateManager: StateManager): DitherEffect {
+    const effect = new DitherEffect(canvas, cellSize, stateManager);
     effect.initialize();
     return effect;
   }

@@ -132,18 +132,18 @@ class UIManager {
 
           // Call the appropriate state manager method
           switch (toggleMethod) {
-          case 'toggleScanActive':
-            this.stateManager.toggleScanActive();
-            break;
-          case 'setDitherActive':
-            this.stateManager.setDitherActive(isActive);
-            break;
-          case 'setHoverActive':
-            this.stateManager.setHoverActive(isActive);
-            break;
-          case 'setColorShiftActive':
-            this.stateManager.setColorShiftActive(isActive);
-            break;
+            case 'toggleScanActive':
+              this.stateManager.toggleScanActive();
+              break;
+            case 'setDitherActive':
+              this.stateManager.setDitherActive(isActive);
+              break;
+            case 'setHoverActive':
+              this.stateManager.setHoverActive(isActive);
+              break;
+            case 'setColorShiftActive':
+              this.stateManager.setColorShiftActive(isActive);
+              break;
           }
 
           // Update button appearance

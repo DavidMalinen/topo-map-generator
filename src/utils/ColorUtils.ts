@@ -25,23 +25,23 @@ export class ColorUtils {
     if (elevation < maxHeight * 0.2) {
       // Low heights - minimal visibility
       switch (faceType) {
-      case 'top': return 0.1 + (intensity * 0.1);
-      case 'left':
-      case 'right': return 0; // No fill, just outline
+        case 'top': return 0.1 + (intensity * 0.1);
+        case 'left':
+        case 'right': return 0; // No fill, just outline
       }
     } else if (elevation < maxHeight * 0.5) {
       // Middle heights - some visibility
       switch (faceType) {
-      case 'top': return 0.3 + (intensity * 0.2);
-      case 'left': return 0.1;
-      case 'right': return 0.05;
+        case 'top': return 0.3 + (intensity * 0.2);
+        case 'left': return 0.1;
+        case 'right': return 0.05;
       }
     } else {
       // Tall structures - full presence
       switch (faceType) {
-      case 'top': return 0.6 + (intensity * 0.2);
-      case 'left': return 0.4;
-      case 'right': return 0.3;
+        case 'top': return 0.6 + (intensity * 0.2);
+        case 'left': return 0.4;
+        case 'right': return 0.3;
       }
     }
   }

@@ -11,7 +11,7 @@ class TerrainGeneratorFactory {
   readonly CityGridGenerator: typeof CityGridGenerator;
   readonly CrystalFormationGenerator: typeof CrystalFormationGenerator;
   readonly WavePatternGenerator: typeof WavePatternGenerator;
-  
+
   constructor() {
     this.RandomTerrainGenerator = RandomTerrainGenerator;
     this.CenterPeakGenerator = CenterPeakGenerator;
@@ -22,18 +22,18 @@ class TerrainGeneratorFactory {
 
   createGenerator(type: string, rows: number, cols: number, maxHeight: number): BaseTerrainGenerator {
     switch (type) {
-    case 'random':
-      return new RandomTerrainGenerator(rows, cols, maxHeight);
-    case 'centerPeak':
-      return new CenterPeakGenerator(rows, cols, maxHeight);
-    case 'cityGrid':
-      return new CityGridGenerator(rows, cols, maxHeight);
-    case 'crystal':
-      return new CrystalFormationGenerator(rows, cols, maxHeight);
-    case 'wave':
-      return new WavePatternGenerator(rows, cols, maxHeight);
-    default:
-      throw new Error(`Unknown generator type: ${type}`);
+      case 'random':
+        return new RandomTerrainGenerator(rows, cols, maxHeight);
+      case 'centerPeak':
+        return new CenterPeakGenerator(rows, cols, maxHeight);
+      case 'cityGrid':
+        return new CityGridGenerator(rows, cols, maxHeight);
+      case 'crystal':
+        return new CrystalFormationGenerator(rows, cols, maxHeight);
+      case 'wave':
+        return new WavePatternGenerator(rows, cols, maxHeight);
+      default:
+        throw new Error(`Unknown generator type: ${type}`);
     }
   }
 }

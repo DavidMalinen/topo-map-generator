@@ -61,7 +61,7 @@ class TopoApp {
     this.uiManager = new UIManager(this);
 
     // Setup
-    this.effects.initDitherMap(this.rows, this.cols, this.cellSize);
+    this.effects.generateDitherMap(this.rows, this.cols);
     this.uiManager.setupEventListeners();
     this.init();
   }
@@ -86,7 +86,7 @@ class TopoApp {
   init(): void {
     this.clearCanvas();
     this.drawGrid();
-    this.updateStatus("STATUS: INITIALIZED");
+    this.uiManager.updateStatus("STATUS: INITIALIZED");
   }
 
   clearCanvas(): void {
@@ -101,12 +101,7 @@ class TopoApp {
     this.rendering.drawGrid(this.state.isometric, this.rows, this.cols, this.cellSize);
   }
 
-  updateStatus(message: string): void {
-    this.uiManager.updateStatus(message);
-  }
-
   drawTopo(): void {
-    // Set state flags on canvas for renderers to access
     this.canvas.dataset.ditherActive = this.state.ditherActive.toString();
     this.canvas.dataset.colorShiftActive = this.state.colorShiftActive.toString();
 
@@ -115,16 +110,12 @@ class TopoApp {
     this.rendering.drawTerrain(this.state.isometric, terrainData, this.state.maxHeight, this.cellSize, this.rows, this.cols);
 
     if (this.state.ditherActive) {
-      this.effects.applyDitherEffect(this.ctx, terrainData, this.rows, this.cols, this.state.maxHeight, this.cellSize);
+      this.effects.drawDitherEffect(this.ctx, terrainData, this.rows, this.cols, this.state.maxHeight, this.cellSize);
     }
 
     if (this.state.hoverActive) {
       this.effects.drawHoverEffects(this.state.currentX, this.state.currentY, this.state.isometric);
     }
-  }
-
-  getTerrainGeneratorFactory(): TerrainGeneratorFactory {
-    return this.generatorFactory;
   }
 }
 

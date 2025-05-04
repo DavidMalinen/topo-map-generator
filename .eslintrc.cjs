@@ -19,7 +19,7 @@ module.exports = {
     'import'
   ],
   rules: {
-    'indent': ['error', 2],
+    'indent': ['error', 2, { 'SwitchCase': 1 }], // Case statements align with switch
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', {

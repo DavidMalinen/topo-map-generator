@@ -1,4 +1,4 @@
-import type { AppState } from '../types';
+import type { AppState, DitherPattern, DitherPoint } from '../types';
 
 class StateManager {
   private state: AppState;
@@ -21,6 +21,14 @@ class StateManager {
       isoFaceDitherMaps: {},
       cellSize: 40
     };
+  }
+
+  setIsoFaceDitherMaps(face: string, map: DitherPoint[]): void {
+    this.state.isoFaceDitherMaps[face] = map;
+  }
+
+  setDitherPatterns(ditherPatterns: DitherPattern[]): void {
+    this.state.ditherMap = ditherPatterns;
   }
 
   updateMaxHeight(value: number): void {
