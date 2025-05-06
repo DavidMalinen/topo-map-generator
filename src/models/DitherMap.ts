@@ -2,8 +2,8 @@ import { DitherPattern } from '../types';
 
 class DitherMap {
   private cellSize: number;
-  private ditherPatterns: DitherPattern[]; // Dynamic patterns generated for cells
-  private predefinedPatterns: DitherPattern[]; // Static predefined patterns
+  private ditherPatterns: DitherPattern[];
+  private predefinedPatterns: DitherPattern[];
 
   constructor(cellSize: number = 4) {
     this.cellSize = cellSize;
@@ -25,16 +25,12 @@ class DitherMap {
     ];
   }
 
-  /**
-   * Generate dither maps for a grid of specified rows and columns
-   */
   generateDitherMap(rows: number, cols: number): DitherPattern[] {
     this.ditherPatterns = [];
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const index = y * cols + x;
         const cellMap = this.createDitherPattern();
-
         this.ditherPatterns[index] = cellMap;
       }
     }
@@ -42,9 +38,6 @@ class DitherMap {
     return this.ditherPatterns;
   }
 
-  /**
-   * Create a random dither pattern for a single cell
-   */
   createDitherPattern(): DitherPattern {
     const dotsPerSide = this.cellSize / 2;
     const cellMap: number[] = [];
@@ -58,25 +51,15 @@ class DitherMap {
     return cellMap;
   }
 
-  /**
-   * Get a dynamically generated dither pattern for a specific cell
-   */
   getDitherPattern(index: number): DitherPattern {
     return this.ditherPatterns[index] || [];
   }
 
-  /**
-   * Get a predefined dither pattern
-   */
   getPattern(index: number): DitherPattern {
     return this.predefinedPatterns[index % this.predefinedPatterns.length];
   }
 
-  /**
-   * Generate a custom dither pattern based on a seed
-   */
   generateCustomPattern(seed: number): DitherPattern {
-    // Generate a custom dither pattern based on a seed
     const customPattern: DitherPattern = [];
     const rng = this.seededRandom(seed);
 
@@ -89,11 +72,12 @@ class DitherMap {
     return customPattern;
   }
 
-  /**
-   * Set the cell size for dither patterns
-   */
   setCellSize(size: number): void {
     this.cellSize = size;
+  }
+
+  getCellSize(): number {
+    return this.cellSize;
   }
 
   /**

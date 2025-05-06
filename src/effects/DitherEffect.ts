@@ -10,6 +10,7 @@ class DitherEffect extends BaseEffect {
   private canvas: HTMLCanvasElement;
   private ditherMap: DitherMap;
   private stateManager: StateManager;
+  private isometricDitherHandler: EventListener | null = null;
 
   public constructor(canvas: HTMLCanvasElement, cellSize: number, stateManager: StateManager) {
     super();
@@ -18,19 +19,29 @@ class DitherEffect extends BaseEffect {
     this.stateManager = stateManager;
   }
 
-  public initialize(): void { }
+  public initialize(): void {
+    const rows = Math.floor(this.canvas.height / this.ditherMap.getCellSize());
+    const cols = Math.floor(this.canvas.width / this.ditherMap.getCellSize());
+    this.generateDitherMap(rows, cols);
+
+    this.setupIsometricDitherHandler();
+  }
 
   public apply(ctx: CanvasRenderingContext2D, x: number, y: number, cols: number, baseOpacity: number, cellSize: number): void {
-    this.drawDitheredCell(ctx, x, y, cols, baseOpacity, cellSize);
-    this.drawIsometricDithering(this.canvas);
+    if (!this.stateManager.getState().isometric) {
+      this.drawDitheredCell(ctx, x, y, cols, baseOpacity, cellSize);
+    }
   }
 
   public toggle(active: boolean): void {
     this.stateManager.setDitherActive(active);
-    if (!this.stateManager.getState().ditherActive) this.dispose()
+
+    if (!active) {
+      this.dispose();
+    }
   }
 
-  public generateDitherMap(rows: number, cols: number): void {
+  private generateDitherMap(rows: number, cols: number): void {
     const ditherPatterns = this.ditherMap.generateDitherMap(rows, cols);
     this.stateManager.setDitherPatterns(ditherPatterns);
   }
@@ -47,8 +58,8 @@ class DitherEffect extends BaseEffect {
 
     const index = y * cols + x;
     const pattern: DitherPattern = this.ditherMap.getDitherPattern(index);
-    // Cap the threshold to ensure pattern remains visible
-    const threshold = Math.min(Math.max(opacity * 16, 3), 15);
+
+    const intensity = Math.min(1, opacity);
     const dotsPerSide = cellSize / 2;
 
     ctx.fillStyle = `rgba(198, 255, 0, ${opacity * 0.2})`;
@@ -57,7 +68,7 @@ class DitherEffect extends BaseEffect {
     for (let dy = 0; dy < dotsPerSide; dy++) {
       for (let dx = 0; dx < dotsPerSide; dx++) {
         const dotValue = pattern[dy * dotsPerSide + dx] || 0;
-        if (dotValue < threshold) {
+        if (dotValue < intensity) {
           ctx.fillRect(
             x * cellSize + dx * 2,
             y * cellSize + dy * 2,
@@ -76,16 +87,6 @@ class DitherEffect extends BaseEffect {
   ): void {
     // Create a unique key for this face based on its points
     const faceKey = points.map(p => `${Math.round(p.x)},${Math.round(p.y)}`).join('|');
-
-    // Create a base fill with low opacity
-    ctx.fillStyle = color.replace(/[\d.]+\)$/g, "0.1)");
-    ctx.beginPath();
-    ctx.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      ctx.lineTo(points[i].x, points[i].y);
-    }
-    ctx.closePath();
-    ctx.fill();
 
     // Check if we already have a dither map for this face
     if (!this.stateManager.getState().isoFaceDitherMaps[faceKey]) {
@@ -131,8 +132,9 @@ class DitherEffect extends BaseEffect {
       this.stateManager.setIsoFaceDitherMaps(faceKey, faceDitherMap);
     }
 
+    const density = 0.1 + Math.min(0.9, intensity * 1.2);
+
     const dotSize = 2;
-    const density = 0.1 + (intensity * 0.9);
     const faceDitherMap = this.stateManager.getState().isoFaceDitherMaps[faceKey]!;
 
     ctx.fillStyle = color;
@@ -143,46 +145,78 @@ class DitherEffect extends BaseEffect {
     });
   }
 
-  private drawIsometricDithering(canvas: HTMLCanvasElement): void {
-    if (!this.stateManager.getState().isometric) return;
-    canvas.addEventListener('apply-isometric-dither', ((e: CustomEvent<IsometricDitherDetail>) => {
+  private setupIsometricDitherHandler(): void {
+    // Remove any existing handler first
+    this.removeIsometricDitherHandler();
+
+    // Create and store the handler for later cleanup
+    this.isometricDitherHandler = ((e: CustomEvent<IsometricDitherDetail>) => {
+      // Only proceed if we're in isometric view and dither is active
+      if (!this.stateManager.getState().isometric ||
+        !this.stateManager.getState().ditherActive) {
+        return;
+      }
 
       const detail = e.detail;
-      const ctx = canvas.getContext('2d')!;
-      const colorShiftActive = canvas.dataset.colorShiftActive === 'true';
+      const ctx = this.canvas.getContext('2d')!;
+      const colorShiftActive = this.canvas.dataset.colorShiftActive === 'true';
 
       this.drawDitheredIsometricFace(
         ctx,
         detail.leftPoints,
-        detail.leftColor || ColorUtils.getLeftFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.leftColor || ColorUtils.getLeftFaceColor(
+          detail.intensity, detail.height, detail.maxHeight, colorShiftActive
+        ),
         detail.intensity * 0.7
       );
 
       this.drawDitheredIsometricFace(
         ctx,
         detail.rightPoints,
-        detail.rightColor || ColorUtils.getRightFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.rightColor || ColorUtils.getRightFaceColor(
+          detail.intensity, detail.height, detail.maxHeight, colorShiftActive
+        ),
         detail.intensity * 0.5
       );
 
       this.drawDitheredIsometricFace(
         ctx,
         detail.frontLeftPoints,
-        detail.frontLeftColor || ColorUtils.getFrontLeftFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.frontLeftColor || ColorUtils.getFrontLeftFaceColor(
+          detail.intensity, detail.height, detail.maxHeight, colorShiftActive
+        ),
         detail.intensity * 0.4
       );
 
       this.drawDitheredIsometricFace(
         ctx,
         detail.frontRightPoints,
-        detail.frontRightColor || ColorUtils.getFrontRightFaceColor(detail.intensity, detail.height, detail.maxHeight, colorShiftActive),
+        detail.frontRightColor || ColorUtils.getFrontRightFaceColor(
+          detail.intensity, detail.height, detail.maxHeight, colorShiftActive
+        ),
         detail.intensity * 0.3
       );
-    }) as EventListener);
+    }) as EventListener;
+
+    // Add the handler once
+    this.canvas.addEventListener(
+      'apply-isometric-dither',
+      this.isometricDitherHandler
+    );
+  }
+
+  private removeIsometricDitherHandler(): void {
+    if (this.isometricDitherHandler) {
+      this.canvas.removeEventListener(
+        'apply-isometric-dither',
+        this.isometricDitherHandler
+      );
+      this.isometricDitherHandler = null;
+    }
   }
 
   public dispose(): void {
-    this.canvas.removeEventListener('apply-isometric-dither', (() => this.drawIsometricDithering) as EventListener);
+    this.removeIsometricDitherHandler();
   }
 }
 

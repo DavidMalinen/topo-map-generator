@@ -61,7 +61,6 @@ class TopoApp {
     this.uiManager = new UIManager(this);
 
     // Setup
-    this.effects.generateDitherMap(this.rows, this.cols);
     this.uiManager.setupEventListeners();
     this.init();
   }

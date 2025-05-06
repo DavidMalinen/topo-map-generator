@@ -5,3 +5,9 @@ export interface TerrainOptions {
   cols: number;
   maxHeight: number;
 }
+
+export interface TerrainCell {
+  x: number;
+  y: number;
+  elevation: number;
+}

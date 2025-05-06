@@ -4,5 +4,5 @@ export * from './events';
 export * from './ui';
 export * from './rendering';
 export * from './effects';
-export * from './terrain';
 export * from './dither';
+export * from './terrain';

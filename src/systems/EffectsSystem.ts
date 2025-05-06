@@ -40,11 +40,6 @@ class EffectsSystem {
     return this.effects.get('dither') as DitherEffect;
   }
 
-  public generateDitherMap(rows: number, cols: number): void {
-    if (!this.ditherEffectInstance) return;
-    this.ditherEffectInstance.generateDitherMap(rows, cols);
-  }
-
   drawDitherEffect(ctx: CanvasRenderingContext2D, terrainData: ElevationMatrix, rows: number, cols: number, maxHeight: number, cellSize: number): void {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
