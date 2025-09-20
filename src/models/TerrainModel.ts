@@ -1,4 +1,4 @@
-import { ElevationMatrix, TerrainOptions } from '../types';
+import { ElevationMatrix, TerrainOptions } from '@/types';
 
 class TerrainModel implements TerrainOptions {
   rows: number;

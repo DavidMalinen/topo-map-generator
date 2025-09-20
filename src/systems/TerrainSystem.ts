@@ -1,6 +1,7 @@
 import TerrainGeneratorFactory from '../factories/TerrainGeneratorFactory';
 import ElevationData from '../models/ElevationData';
-import { ElevationMatrix } from '../types';
+
+import { ElevationMatrix } from '@/types';
 
 class TerrainSystem {
   private elevationData: ElevationData;

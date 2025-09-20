@@ -1,4 +1,4 @@
-import { Polygon } from '../types';
+import { Polygon } from '@/types';
 
 class PolygonUtils {
   static isPointInPolygon(x: number, y: number, polygon: Polygon): boolean {

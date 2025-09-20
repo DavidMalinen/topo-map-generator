@@ -1,8 +1,8 @@
 import BaseEffect from './BaseEffect';
 import StateManager from '../controllers/StateManager';
 import DitherMap from '../models/DitherMap';
-import { DitherPattern, DitherPoint, IsometricDitherDetail, Point } from '../types';
 
+import { DitherPattern, DitherPoint, IsometricDitherDetail, Point } from '@/types';
 import { ColorUtils } from '@/utils/ColorUtils';
 import PolygonUtils from '@/utils/PolygonUtils';
 

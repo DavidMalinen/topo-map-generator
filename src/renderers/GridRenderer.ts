@@ -1,10 +1,10 @@
-import type { Point } from '../types';
+import type { Point } from '@/types';
 
 class GridRenderer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private offsetX: number;
-  private offsetY: number;
+  private readonly offsetX: number;
+  private readonly offsetY: number;
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -77,11 +77,11 @@ class GridRenderer {
     gridLines.forEach(points => {
       this.ctx.beginPath();
       this.ctx.moveTo(points[0].x, points[0].y);
-      
+
       for (let i = 1; i < points.length; i++) {
         this.ctx.lineTo(points[i].x, points[i].y);
       }
-      
+
       this.ctx.stroke();
     });
   }

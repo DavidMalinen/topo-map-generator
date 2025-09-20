@@ -1,8 +1,8 @@
 class UIController {
-  private statusElement: HTMLElement | null;
-  private coordinatesElement: HTMLElement | null;
-  private valueElement: HTMLElement | null;
-  private heightValueElement: HTMLElement | null;
+  private readonly statusElement: HTMLElement | null;
+  private readonly coordinatesElement: HTMLElement | null;
+  private readonly valueElement: HTMLElement | null;
+  private readonly heightValueElement: HTMLElement | null;
 
   constructor(
     statusElement: HTMLElement | null,
@@ -36,7 +36,7 @@ class UIController {
   updateHeightValue(value: number): void {
     if (this.heightValueElement) {
       this.heightValueElement.textContent = value.toString();
-      
+
       const maxHeightSlider = document.getElementById('max-height') as HTMLInputElement | null;
       if (maxHeightSlider) {
         maxHeightSlider.value = value.toString();

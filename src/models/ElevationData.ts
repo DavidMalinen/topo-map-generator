@@ -1,8 +1,8 @@
-import type { ElevationMatrix } from '../types';
+import type { ElevationMatrix } from '@/types';
 
 class ElevationData {
-  private rows: number;
-  private cols: number;
+  private readonly rows: number;
+  private readonly cols: number;
   private elevationData: ElevationMatrix;
 
   constructor(rows: number, cols: number) {

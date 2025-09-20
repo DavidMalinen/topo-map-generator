@@ -4,7 +4,7 @@ class ScanLineEffect extends BaseEffect {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private position: number;
-  private speed: number;
+  private readonly speed: number;
   private animationId: number | null;
 
   constructor(canvas: HTMLCanvasElement) {

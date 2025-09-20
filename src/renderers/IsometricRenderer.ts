@@ -1,9 +1,10 @@
 import BaseRenderer from './BaseRenderer';
-import { ElevationMatrix, Point, TerrainCell } from '../types';
 import { ColorUtils } from '../utils/ColorUtils';
 
+import { ElevationMatrix, Point, TerrainCell } from '@/types';
+
 class IsometricRenderer extends BaseRenderer {
-  private colorShiftActive: boolean = false;
+  private readonly colorShiftActive: boolean = false;
 
   constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
     super(canvas, ctx);

@@ -1,9 +1,9 @@
-import { DitherPattern } from '../types';
+import {DitherPattern} from '@/types';
 
 class DitherMap {
   private cellSize: number;
   private ditherPatterns: DitherPattern[];
-  private predefinedPatterns: DitherPattern[];
+  private readonly predefinedPatterns: DitherPattern[];
 
   constructor(cellSize: number = 4) {
     this.cellSize = cellSize;
@@ -30,8 +30,7 @@ class DitherMap {
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const index = y * cols + x;
-        const cellMap = this.createDitherPattern();
-        this.ditherPatterns[index] = cellMap;
+        this.ditherPatterns[index] = this.createDitherPattern();
       }
     }
 

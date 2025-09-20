@@ -8,7 +8,7 @@ abstract class BaseRenderer {
   protected offsetY: number;
   protected gridRenderer: GridRenderer;
 
-  constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
+  protected constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
     this.canvas = canvas;
     this.ctx = ctx || canvas.getContext('2d') as CanvasRenderingContext2D;
     this.offsetX = canvas.width / 2;
@@ -18,7 +18,7 @@ abstract class BaseRenderer {
 
   setupCanvas(): void {
     if (!this.canvas) return;
-    
+
     // Set canvas dimensions to fill the container
     this.canvas.width = this.canvas.clientWidth;
     this.canvas.height = this.canvas.clientHeight;
@@ -34,9 +34,9 @@ abstract class BaseRenderer {
     this.drawTerrain(elevationData, maxHeight, cellSize);
     this.drawGrid(rows, cols, cellSize);
   }
-  
+
   abstract drawGrid(rows: number, cols: number, cellSize: number): void;
-  
+
   abstract drawTerrain(elevationData: ElevationMatrix, maxHeight: number, cellSize: number): void;
 }
 

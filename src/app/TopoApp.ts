@@ -6,7 +6,8 @@ import TerrainGeneratorFactory from '../factories/TerrainGeneratorFactory';
 import ElevationData from '../models/ElevationData';
 import EffectsSystem from '../systems/EffectsSystem';
 import RenderingSystem from '../systems/RenderingSystem';
-import { AppState, ElevationMatrix } from '../types';
+
+import { AppState, ElevationMatrix } from '@/types';
 
 class TopoApp {
   // DOM elements

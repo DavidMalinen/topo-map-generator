@@ -1,7 +1,7 @@
 import type { AppState, DitherPattern, DitherPoint } from '../types';
 
 class StateManager {
-  private state: AppState;
+  private readonly state: AppState;
 
   constructor() {
     this.state = {

@@ -4,7 +4,9 @@ import DitherEffect from '../effects/DitherEffect';
 import HoverEffect from '../effects/HoverEffect';
 import ScanLineEffect from '../effects/ScanLineEffect';
 import EffectsFactory from '../factories/EffectsFactory';
-import { ElevationMatrix } from '../types';
+
+import { ElevationMatrix } from '@/types';
+
 class EffectsSystem {
   private effects: Map<string, BaseEffect>;
   private effectsFactory: EffectsFactory;

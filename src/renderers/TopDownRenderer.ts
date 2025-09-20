@@ -1,9 +1,10 @@
 import BaseRenderer from './BaseRenderer';
-import type { ElevationMatrix } from '../types';
 import { ColorUtils } from '../utils/ColorUtils';
 
+import type { ElevationMatrix } from '@/types';
+
 class TopDownRenderer extends BaseRenderer {
-  private colorShiftActive: boolean = false;
+  private readonly colorShiftActive: boolean = false;
 
   constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
     super(canvas, ctx);

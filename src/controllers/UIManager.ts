@@ -1,6 +1,8 @@
-import TopoApp from '../app/TopoApp';
-import { AppState, EffectButton, UIElements } from '../types';
 import StateManager from './StateManager';
+import TopoApp from '../app/TopoApp';
+
+import { AppState, EffectButton, UIElements } from '@/types';
+
 
 class UIManager {
   private app: TopoApp;

@@ -3,7 +3,7 @@ import BaseEffect from './BaseEffect';
 class HoverEffect extends BaseEffect {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
-  private cellSize: number;
+  private readonly cellSize: number;
   private isActive: boolean;
 
   constructor(canvas: HTMLCanvasElement, cellSize: number) {
